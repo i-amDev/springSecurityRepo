@@ -1,10 +1,13 @@
 package com.learning.springSecurity.config;
 
+import com.learning.springSecurity.entity.Permissions;
+import com.learning.springSecurity.entity.Role;
 import com.learning.springSecurity.filter.JWTAuthFilter;
 import com.learning.springSecurity.service.CustomUserDetailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -28,6 +31,11 @@ public class SecurityConfig {
         httpSecurity.csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(request -> request
                         .requestMatchers("/authenticate").permitAll()
+                        .requestMatchers("/hello").hasRole("ADMIN")
+                        .requestMatchers("/hello").hasRole(Role.ADMIN.name())
+                        .requestMatchers(HttpMethod.GET, "/hello").hasAuthority(Permissions.PERMISSION_READ.name())
+                        .requestMatchers(HttpMethod.POST, "/hello").hasAuthority(Permissions.PERMISSION_WRITE.name())
+                        .requestMatchers(HttpMethod.DELETE, "/hello").hasAuthority(Permissions.PERMISSION_DELETE.name())
                         .anyRequest().authenticated());
 //                .httpBasic(Customizer.withDefaults());
         httpSecurity.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
